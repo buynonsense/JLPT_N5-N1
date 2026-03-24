@@ -12,7 +12,7 @@ describe("plugin bootstrap", () => {
   it("provides required manifest fields", () => {
     const manifestPath = resolve(__dirname, "..", "manifest.json")
     const manifest = JSON.parse(readFileSync(manifestPath, "utf-8")) as Record<string, unknown>
-    expect(manifest.id).toBe("jlpt-grammar-obsidian")
+    expect(manifest.id).toBe("jlpt-n5-n1")
     expect(manifest.name).toBeTruthy()
     expect(manifest.version).toBeTruthy()
   })

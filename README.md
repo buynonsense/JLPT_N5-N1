@@ -10,7 +10,7 @@
 
 ## Quickstart
 
-1. 插件文件夹放到 `.obsidian/plugins/jlpt-grammar-obsidian/`
+1. 插件文件夹放到 `.obsidian/plugins/jlpt-n5-n1/`
 2. 在 `设置 → 社区插件` 中启用
 3. 命令面板执行 `初始化文法库`
 4. 执行 `打开学习面板`，开始学习
