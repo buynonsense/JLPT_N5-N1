@@ -1,19 +1,21 @@
-# JLPT Grammar Obsidian
+# JLPT N5-N1
 
 在 Obsidian 中学习 JLPT N5～N1 文法。
 
 ## 功能
 
 - 内置完整文法资料（N5～N1）
-- 按教学功能分类学习，按等级浏览
+- 分类学习（手风琴折叠）与等级浏览
 - 勾选学习进度、继续学习、跳转正文
+- 今日目标 todo 列表（最多 3 条）
 
 ## Quickstart
 
-1. 插件文件夹放到 `.obsidian/plugins/jlpt-n5-n1/`
-2. 在 `设置 → 社区插件` 中启用
-3. 命令面板执行 `初始化文法库`
-4. 执行 `打开学习面板`，开始学习
+1. 从 [Releases](https://github.com/buynonsense/JLPT_N5-N1/releases) 下载最新版本
+2. 解压 `main.js`、`manifest.json`、`styles.css` 到 `.obsidian/plugins/jlpt-n5-n1/`
+3. 设置 → 社区插件 → 启用 `JLPT N5-N1`
+4. 命令面板执行 `初始化文法库`
+5. 执行 `打开学习面板`
 
 ## 开发
 
