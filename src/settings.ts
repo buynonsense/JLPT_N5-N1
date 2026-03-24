@@ -9,4 +9,5 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   defaultShowUnlearnedOnly: false,
   preferredViewMode: "category",
   progress: {},
+  dailyTodos: [],
 }

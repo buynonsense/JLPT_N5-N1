@@ -72,6 +72,41 @@ export class StudyPanelView extends ItemView {
     header.createEl("h3", { text: "JLPT 学习面板" })
     header.createDiv({ text: `已学 ${doneCount} / ${filtered.length}` })
 
+    // 今日 todo 区域
+    const todoSection = container.createDiv({ cls: "jlpt-todo-section" })
+    const todoTitle = todoSection.createDiv({ cls: "jlpt-todo-title" })
+    const activeTodos = this.plugin.settings.dailyTodos.filter((t) => t.trim().length > 0)
+    todoTitle.createSpan({ text: "今日目标" })
+    todoTitle.createSpan({ text: activeTodos.length > 0 ? `${activeTodos.length} 条` : "" })
+
+    for (let i = 0; i < 3; i += 1) {
+      const text = this.plugin.settings.dailyTodos[i] ?? ""
+      const row = todoSection.createDiv({ cls: "jlpt-todo-row" })
+      const checkbox = row.createEl("input", { type: "checkbox" })
+      checkbox.checked = false
+      checkbox.addEventListener("change", async () => {
+        this.plugin.settings.dailyTodos.splice(i, 1)
+        await this.plugin.saveSettings()
+        this.render()
+      })
+
+      const input = row.createEl("input", { type: "text" })
+      input.placeholder = "输入今日目标…"
+      input.value = text
+      input.addEventListener("change", async () => {
+        const todos = [...this.plugin.settings.dailyTodos]
+        while (todos.length < 3) todos.push("")
+        todos[i] = input.value.trim()
+        this.plugin.settings.dailyTodos = todos.filter((t) => t.length > 0)
+        await this.plugin.saveSettings()
+      })
+      input.addEventListener("keydown", async (e) => {
+        if (e.key === "Enter") {
+          input.blur()
+        }
+      })
+    }
+
     if (this.plugin.grammarItems.length === 0) {
       container.createDiv({ text: "当前没有可解析的文法数据，请先初始化文法库。" })
       return

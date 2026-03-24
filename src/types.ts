@@ -36,4 +36,5 @@ export interface PluginSettings {
   preferredViewMode?: StudyViewMode
   lastOpenedId?: string
   progress: Record<string, ProgressItem>
+  dailyTodos: string[]
 }

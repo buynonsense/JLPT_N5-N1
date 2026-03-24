@@ -102,3 +102,40 @@
   flex: 1;
   text-align: left;
 }
+
+.jlpt-todo-section {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: var(--background-secondary);
+}
+
+.jlpt-todo-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.jlpt-todo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.jlpt-todo-row input[type="text"] {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text-normal);
+  outline: none;
+}
+
+.jlpt-todo-row input[type="text"]::placeholder {
+  color: var(--text-faint);
+}

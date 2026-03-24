@@ -114,6 +114,7 @@ export class JLPTGrammarPlugin extends Plugin {
       ...(loaded ?? {}),
       selectedLevels: Array.isArray(loaded?.selectedLevels) && loaded.selectedLevels.length > 0 ? loaded.selectedLevels : [...DEFAULT_SETTINGS.selectedLevels],
       progress: typeof loaded?.progress === "object" && loaded?.progress !== null ? loaded.progress : {},
+      dailyTodos: Array.isArray(loaded?.dailyTodos) ? loaded.dailyTodos.filter((t: unknown) => typeof t === "string").slice(0, 3) : [],
     }
   }
 
