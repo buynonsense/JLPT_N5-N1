@@ -17,6 +17,7 @@ export class StudyPanelView extends ItemView {
   temporaryLevels: Set<JLPTLevel>
   showUnlearnedOnly: boolean
   viewMode: StudyViewMode
+  private expandedCategoryId: string | null = null
 
   constructor(leaf: WorkspaceLeaf, plugin: JLPTGrammarPlugin) {
     super(leaf)
@@ -158,57 +159,55 @@ export class StudyPanelView extends ItemView {
     if (this.viewMode === "category") {
       const groups = groupItemsByCategory(filtered)
       const summaries = buildCategorySummaries(filtered, doneMap)
-      const summaryWrap = list.createDiv({ cls: "jlpt-category-summary-grid" })
-      summaries.forEach((summary) => {
-        const card = summaryWrap.createDiv({ cls: "jlpt-category-card" })
-        card.createEl("strong", { text: summary.category })
-        card.createDiv({ text: `进度 ${summary.done}/${summary.total}` })
-        card.createDiv({ text: `当前层级 ${summary.nextLevel ?? "已完成"}` })
-        const actionRow = card.createDiv({ cls: "jlpt-card-actions" })
-        const continueButton = actionRow.createEl("button", { text: "从本类继续" })
-        continueButton.disabled = !summary.nextItemId
-        continueButton.addEventListener("click", async () => {
-          if (!summary.nextItemId) {
-            return
-          }
-          const item = this.plugin.findItemById(summary.nextItemId)
-          if (!item) {
-            new Notice(`找不到条目: ${summary.nextItemId}`)
-            return
-          }
-          await this.plugin.openGrammarItem(item)
+
+      groups.forEach((group) => {
+        const summary = summaries.find((s) => s.category === group.category)
+        if (!summary) return
+
+        const isExpanded = this.expandedCategoryId === group.category
+        const card = list.createDiv({
+          cls: `jlpt-accordion-card${isExpanded ? " is-expanded" : ""}`,
         })
 
-        const filterButton = actionRow.createEl("button", { text: "只看本类未学" })
-        filterButton.disabled = !summary.nextItemId
-        filterButton.addEventListener("click", () => {
-          this.showUnlearnedOnly = true
-          const targetGroup = groups.find((group) => group.category === summary.category)
-          if (!targetGroup) {
-            return
-          }
-          list.empty()
-          const section = list.createDiv({ cls: "jlpt-group" })
-          section.createEl("h4", { text: `${summary.category}（未学）` })
-          targetGroup.items
-            .filter((item) => !doneMap[item.id])
-            .forEach((item) => {
-              this.renderRow(section, item, doneMap)
-            })
+        const header = card.createDiv({ cls: "jlpt-accordion-header" })
+        header.createDiv({ cls: "jlpt-accordion-arrow", text: "▶" })
+        header.createDiv({ cls: "jlpt-accordion-title", text: group.category })
+        header.createDiv({
+          cls: "jlpt-accordion-meta",
+          text: `${summary.done}/${summary.total}`,
         })
-      })
-      groups.forEach((group) => {
-        const groupDone = group.items.filter((item) => doneMap[item.id]).length
-        const nextItem = group.items.find((item) => !doneMap[item.id])
-        const section = list.createDiv({ cls: "jlpt-group" })
-        section.createEl("h4", { text: `${group.category}（${groupDone}/${group.items.length}）` })
-        section.createDiv({
-          cls: "jlpt-group-meta",
-          text: `推荐下一步：${nextItem ? `${nextItem.level} ${nextItem.title}` : "该分类已完成"}`,
+
+        header.addEventListener("click", () => {
+          this.expandedCategoryId = isExpanded ? null : group.category
+          this.render()
         })
-        group.items.forEach((item) => {
-          this.renderRow(section, item, doneMap)
-        })
+
+        if (isExpanded) {
+          const body = card.createDiv({ cls: "jlpt-accordion-body" })
+          group.items.forEach((item) => {
+            this.renderRow(body, item, doneMap)
+          })
+
+          const actions = body.createDiv({ cls: "jlpt-card-actions" })
+          const continueBtn = actions.createEl("button", { text: "从本类继续" })
+          continueBtn.disabled = !summary.nextItemId
+          continueBtn.addEventListener("click", async () => {
+            if (!summary.nextItemId) return
+            const item = this.plugin.findItemById(summary.nextItemId)
+            if (!item) {
+              new Notice(`找不到条目: ${summary.nextItemId}`)
+              return
+            }
+            await this.plugin.openGrammarItem(item)
+          })
+
+          const filterBtn = actions.createEl("button", { text: "只看本类未学" })
+          filterBtn.disabled = !summary.nextItemId
+          filterBtn.addEventListener("click", () => {
+            this.showUnlearnedOnly = true
+            this.render()
+          })
+        }
       })
       return
     }
