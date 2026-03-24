@@ -1,0 +1,19 @@
+# 依赖
+node_modules/
+
+# 构建产物
+main.js
+main.js.map
+
+# macOS
+.DS_Store
+
+# 本地 Obsidian 测试 vault
+test-vault/
+
+# 编辑器
+.vscode/
+.idea/
+
+# TypeScript
+*.tsbuildinfo

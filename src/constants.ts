@@ -1,0 +1,5 @@
+export const DEFAULT_DOC_PATH = "JLPT/jlpt文法n5_to_n1.md"
+export const VIEW_TYPE_STUDY = "jlpt-study-view"
+export const COMMAND_INIT_LIBRARY = "jlpt-init-library"
+export const COMMAND_OPEN_STUDY = "jlpt-open-study-view"
+export const COMMAND_CONTINUE_STUDY = "jlpt-continue-study"

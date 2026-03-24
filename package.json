@@ -1,0 +1,16 @@
+{
+  "name": "jlpt-grammar-obsidian",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "test": "vitest run",
+    "dev": "node esbuild.config.mjs --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.3",
+    "obsidian": "^1.8.10",
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.1"
+  }
+}
