@@ -17,3 +17,9 @@ test-vault/
 
 # TypeScript
 *.tsbuildinfo
+
+# 本地代理指令文件
+AGENTS.md
+
+# release zip
+*.zip
