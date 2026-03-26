@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { buildSmoothScrollFrames, calculateTargetScrollTop, findHeadingPosition, pickTargetLeaf } from "./jump-to-heading"
+import { buildSmoothScrollFrames, calculateTargetScrollTop, findHeadingPosition, pickTargetLeaf, shouldUseSmoothScroll } from "./jump-to-heading"
 
 
 describe("findHeadingPosition", () => {
@@ -142,5 +142,28 @@ describe("calculateTargetScrollTop", () => {
     })
 
     expect(result).toBe(0)
+  })
+})
+
+
+describe("shouldUseSmoothScroll", () => {
+  it("allows medium-long distances that were previously downgraded to instant jump", () => {
+    const result = shouldUseSmoothScroll({
+      startTop: 0,
+      targetTop: 3200,
+      maxDistance: 4000,
+    })
+
+    expect(result).toBe(true)
+  })
+
+  it("rejects extremely large distances", () => {
+    const result = shouldUseSmoothScroll({
+      startTop: 0,
+      targetTop: 5200,
+      maxDistance: 4000,
+    })
+
+    expect(result).toBe(false)
   })
 })

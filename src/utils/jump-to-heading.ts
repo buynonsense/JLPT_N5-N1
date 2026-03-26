@@ -92,6 +92,15 @@ export function calculateTargetScrollTop(input: CalculateTargetScrollTopInput): 
 }
 
 
+export function shouldUseSmoothScroll(input: {
+  startTop: number
+  targetTop: number
+  maxDistance: number
+}): boolean {
+  return Math.abs(input.targetTop - input.startTop) <= input.maxDistance
+}
+
+
 function getEditorScrollElement(view: WorkspaceLeaf["view"]): HTMLElement | null {
   const container = (view as { containerEl?: HTMLElement }).containerEl
   if (!container) {
@@ -119,11 +128,14 @@ async function smoothScrollToPosition(input: {
   maxDistance: number
 }): Promise<boolean> {
   const startTop = input.scrollElement.scrollTop
-  const distance = Math.abs(input.targetTop - startTop)
-  if (distance === 0) {
+  if (startTop === input.targetTop) {
     return true
   }
-  if (distance > input.maxDistance) {
+  if (!shouldUseSmoothScroll({
+    startTop,
+    targetTop: input.targetTop,
+    maxDistance: input.maxDistance,
+  })) {
     return false
   }
 
@@ -198,7 +210,7 @@ export async function jumpToGrammarItem(
       ? await smoothScrollToPosition({
         scrollElement,
         targetTop,
-        maxDistance: 2800,
+        maxDistance: 4000,
       })
       : false
 
