@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { findHeadingPosition, pickTargetLeaf } from "./jump-to-heading"
+import { buildSmoothScrollFrames, calculateTargetScrollTop, findHeadingPosition, pickTargetLeaf } from "./jump-to-heading"
 
 
 describe("findHeadingPosition", () => {
@@ -92,5 +92,55 @@ describe("pickTargetLeaf", () => {
     })
 
     expect(result).toBe(preferredLeaf)
+  })
+})
+
+
+describe("buildSmoothScrollFrames", () => {
+  it("returns multiple intermediate frames for short distances", () => {
+    const frames = buildSmoothScrollFrames({
+      startTop: 100,
+      endTop: 280,
+      steps: 14,
+    })
+
+    expect(frames).toHaveLength(14)
+    expect(frames[0]).toBeGreaterThan(100)
+    expect(frames[1]).toBeGreaterThan(frames[0])
+    expect(frames[12]).toBeGreaterThan(frames[11])
+    expect(frames[13]).toBe(280)
+  })
+
+  it("returns only the destination when distance is zero", () => {
+    const frames = buildSmoothScrollFrames({
+      startTop: 200,
+      endTop: 200,
+      steps: 4,
+    })
+
+    expect(frames).toEqual([200])
+  })
+})
+
+
+describe("calculateTargetScrollTop", () => {
+  it("uses editor-provided pixel coordinates instead of a fixed line height", () => {
+    const result = calculateTargetScrollTop({
+      lineTop: 960,
+      viewportHeight: 600,
+      offsetTop: 24,
+    })
+
+    expect(result).toBe(684)
+  })
+
+  it("never returns a negative scroll target", () => {
+    const result = calculateTargetScrollTop({
+      lineTop: 80,
+      viewportHeight: 600,
+      offsetTop: 24,
+    })
+
+    expect(result).toBe(0)
   })
 })

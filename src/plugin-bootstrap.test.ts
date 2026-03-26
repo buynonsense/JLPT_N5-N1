@@ -38,4 +38,5 @@ describe("plugin bootstrap", () => {
       toggleSource.indexOf("await this.continueStudyWithPreferredLeaf(preferredLeaf)"),
     )
   })
+
 })

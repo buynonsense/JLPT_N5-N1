@@ -1,7 +1,7 @@
 {
   "id": "jlpt-n5-n1",
   "name": "JLPT Grammar Obsidian",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "minAppVersion": "1.5.0",
   "description": "Study JLPT grammar from N5 to N1.",
   "author": "buynonsense",
