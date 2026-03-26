@@ -15,7 +15,7 @@ import { JLPTSettingTab } from "./settings-tab"
 import { createProgressStore } from "./state/progress-store"
 import { StudyPanelView } from "./views/study-panel-view"
 import { jumpToGrammarItem } from "./utils/jump-to-heading"
-import type { PluginSettings } from "./types"
+import type { DailyTodoItem, PluginSettings } from "./types"
 import { pickContinueStudyId } from "./commands/continue-study"
 
 
@@ -25,6 +25,25 @@ function getParentDir(path: string): string {
     return ""
   }
   return path.slice(0, index)
+}
+
+
+function migrateDailyTodos(raw: unknown): DailyTodoItem[] {
+  if (!Array.isArray(raw)) {
+    return []
+  }
+  // 新格式：DailyTodoItem[]
+  if (raw.length > 0 && typeof raw[0] === "object" && raw[0] !== null && "text" in raw[0]) {
+    return (raw as Partial<DailyTodoItem>[])
+      .filter((item) => typeof item.text === "string")
+      .slice(0, 3)
+      .map((item) => ({ text: item.text as string, completed: Boolean(item.completed) }))
+  }
+  // 旧格式：string[]
+  return (raw as unknown[])
+    .filter((t): t is string => typeof t === "string")
+    .slice(0, 3)
+    .map((text) => ({ text, completed: false }))
 }
 
 
@@ -114,7 +133,7 @@ export class JLPTGrammarPlugin extends Plugin {
       ...(loaded ?? {}),
       selectedLevels: Array.isArray(loaded?.selectedLevels) && loaded.selectedLevels.length > 0 ? loaded.selectedLevels : [...DEFAULT_SETTINGS.selectedLevels],
       progress: typeof loaded?.progress === "object" && loaded?.progress !== null ? loaded.progress : {},
-      dailyTodos: Array.isArray(loaded?.dailyTodos) ? loaded.dailyTodos.filter((t: unknown) => typeof t === "string").slice(0, 3) : [],
+      dailyTodos: migrateDailyTodos(loaded?.dailyTodos),
     }
   }
 

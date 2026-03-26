@@ -75,29 +75,41 @@ export class StudyPanelView extends ItemView {
     // 今日 todo 区域
     const todoSection = container.createDiv({ cls: "jlpt-todo-section" })
     const todoTitle = todoSection.createDiv({ cls: "jlpt-todo-title" })
-    const activeTodos = this.plugin.settings.dailyTodos.filter((t) => t.trim().length > 0)
+    const activeTodos = this.plugin.settings.dailyTodos.filter((t) => t.text.trim().length > 0)
     todoTitle.createSpan({ text: "今日目标" })
     todoTitle.createSpan({ text: activeTodos.length > 0 ? `${activeTodos.length} 条` : "" })
 
     for (let i = 0; i < 3; i += 1) {
-      const text = this.plugin.settings.dailyTodos[i] ?? ""
-      const row = todoSection.createDiv({ cls: "jlpt-todo-row" })
+      const item = this.plugin.settings.dailyTodos[i] ?? { text: "", completed: false }
+      const row = todoSection.createDiv({
+        cls: `jlpt-todo-row${item.completed ? " is-completed" : ""}`,
+      })
       const checkbox = row.createEl("input", { type: "checkbox" })
-      checkbox.checked = false
+      checkbox.checked = item.completed
       checkbox.addEventListener("change", async () => {
-        this.plugin.settings.dailyTodos.splice(i, 1)
+        const todos = [...this.plugin.settings.dailyTodos]
+        const current = todos[i]
+        if (!current) return
+        if (!current.completed) {
+          // 第一次点击：标为已完成
+          todos[i] = { text: current.text, completed: true }
+        } else {
+          // 第二次点击：删除
+          todos.splice(i, 1)
+        }
+        this.plugin.settings.dailyTodos = todos
         await this.plugin.saveSettings()
         this.render()
       })
 
       const input = row.createEl("input", { type: "text" })
       input.placeholder = "输入今日目标…"
-      input.value = text
+      input.value = item.text
       input.addEventListener("change", async () => {
         const todos = [...this.plugin.settings.dailyTodos]
-        while (todos.length < 3) todos.push("")
-        todos[i] = input.value.trim()
-        this.plugin.settings.dailyTodos = todos.filter((t) => t.length > 0)
+        while (todos.length < 3) todos.push({ text: "", completed: false })
+        todos[i] = { text: input.value.trim(), completed: false }
+        this.plugin.settings.dailyTodos = todos.filter((t) => t.text.length > 0)
         await this.plugin.saveSettings()
       })
       input.addEventListener("keydown", async (e) => {

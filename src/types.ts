@@ -28,6 +28,11 @@ export interface ProgressItem {
   reviewCount: number
 }
 
+export interface DailyTodoItem {
+  text: string
+  completed: boolean
+}
+
 export interface PluginSettings {
   version: number
   sourceDocPath: string
@@ -36,5 +41,5 @@ export interface PluginSettings {
   preferredViewMode?: StudyViewMode
   lastOpenedId?: string
   progress: Record<string, ProgressItem>
-  dailyTodos: string[]
+  dailyTodos: DailyTodoItem[]
 }

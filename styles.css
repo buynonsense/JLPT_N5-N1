@@ -139,3 +139,8 @@
 .jlpt-todo-row input[type="text"]::placeholder {
   color: var(--text-faint);
 }
+
+.jlpt-todo-row.is-completed input[type="text"] {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
