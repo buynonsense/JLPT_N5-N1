@@ -1,4 +1,4 @@
-import { Notice, Plugin, TFile } from "obsidian"
+import { Notice, Plugin, TFile, type WorkspaceLeaf } from "obsidian"
 
 import bundledMarkdown from "../assets/jlpt文法n5_to_n1.md"
 import {
@@ -15,7 +15,7 @@ import { JLPTSettingTab } from "./settings-tab"
 import { createProgressStore } from "./state/progress-store"
 import { StudyPanelView } from "./views/study-panel-view"
 import { jumpToGrammarItem } from "./utils/jump-to-heading"
-import type { DailyTodoItem, PluginSettings } from "./types"
+import type { DailyTodoItem, JLPTLevel, PluginSettings, StudyViewMode } from "./types"
 import { pickContinueStudyId } from "./commands/continue-study"
 
 
@@ -64,6 +64,9 @@ export class JLPTGrammarPlugin extends Plugin {
 
     this.registerView(VIEW_TYPE_STUDY, (leaf) => new StudyPanelView(leaf, this))
     this.addSettingTab(new JLPTSettingTab(this))
+    this.addRibbonIcon("book-open", "JLPT文法", async () => {
+      await this.toggleJLPTWorkspace()
+    })
 
     this.addCommand({
       id: COMMAND_INIT_LIBRARY,
@@ -100,24 +103,7 @@ export class JLPTGrammarPlugin extends Plugin {
       id: COMMAND_CONTINUE_STUDY,
       name: "继续学习",
       callback: async () => {
-        const candidateIds = this.grammarItems
-          .filter((item) => this.settings.selectedLevels.includes(item.level))
-          .map((item) => item.id)
-        const nextId = pickContinueStudyId({
-          candidateIds,
-          lastOpenedId: this.settings.lastOpenedId,
-          doneMap: this.getDoneMap(),
-        })
-        if (!nextId) {
-          new Notice("没有可继续的文法条目")
-          return
-        }
-        const item = this.findItemById(nextId)
-        if (!item) {
-          new Notice(`找不到条目: ${nextId}`)
-          return
-        }
-        await this.openGrammarItem(item)
+        await this.continueStudy()
       },
     })
   }
@@ -189,10 +175,69 @@ export class JLPTGrammarPlugin extends Plugin {
     return this.grammarItems.find((item) => item.id === id)
   }
 
-  async openGrammarItem(item: GrammarIndexItem): Promise<void> {
+  async continueStudy(): Promise<void> {
+    await this.continueStudyWithPreferredLeaf(this.getActiveGrammarLeaf())
+  }
+
+  private getActiveGrammarLeaf(): WorkspaceLeaf | null {
+    const activeLeaf = this.app.workspace.activeLeaf
+    const file = activeLeaf?.view && "file" in activeLeaf.view ? (activeLeaf.view.file as TFile | null | undefined) : null
+    if (file?.path === this.settings.sourceDocPath) {
+      return activeLeaf
+    }
+    return null
+  }
+
+  private async continueStudyWithPreferredLeaf(preferredLeaf: WorkspaceLeaf | null): Promise<void> {
+    const candidateIds = this.grammarItems
+      .filter((item) => this.settings.selectedLevels.includes(item.level))
+      .map((item) => item.id)
+    const nextId = pickContinueStudyId({
+      candidateIds,
+      lastOpenedId: this.settings.lastOpenedId,
+      doneMap: this.getDoneMap(),
+    })
+    if (!nextId) {
+      new Notice("没有可继续的文法条目")
+      return
+    }
+    const item = this.findItemById(nextId)
+    if (!item) {
+      new Notice(`找不到条目: ${nextId}`)
+      return
+    }
+    await this.openGrammarItem(item, preferredLeaf)
+  }
+
+  private getCurrentMarkdownPath(): string | null {
+    const activeFile = this.app.workspace.getActiveFile()
+    return activeFile?.path ?? null
+  }
+
+  private isStudyViewOpen(): boolean {
+    return this.app.workspace.getLeavesOfType(VIEW_TYPE_STUDY).length > 0
+  }
+
+  private async closeStudyView(): Promise<void> {
+    this.app.workspace.detachLeavesOfType(VIEW_TYPE_STUDY)
+  }
+
+  async toggleJLPTWorkspace(): Promise<void> {
+    const isCurrentGrammarDoc = this.getCurrentMarkdownPath() === this.settings.sourceDocPath
+    const preferredLeaf = this.getActiveGrammarLeaf()
+    if (isCurrentGrammarDoc && this.isStudyViewOpen()) {
+      await this.closeStudyView()
+      return
+    }
+
+    await this.activateStudyView()
+    await this.continueStudyWithPreferredLeaf(preferredLeaf)
+  }
+
+  async openGrammarItem(item: GrammarIndexItem, preferredLeaf: WorkspaceLeaf | null = null): Promise<void> {
     await this.progressStore.markViewed(item.id)
     this.settings = await this.progressStore.getState()
-    await jumpToGrammarItem(this.app, this.settings.sourceDocPath, item)
+    await jumpToGrammarItem(this.app, this.settings.sourceDocPath, item, preferredLeaf)
     this.refreshStudyView()
   }
 
