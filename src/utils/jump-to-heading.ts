@@ -184,6 +184,7 @@ export async function jumpToGrammarItem(
   await leaf.openFile(targetFile)
 
   const view = leaf.view as {
+    getMode?: () => "source" | "preview"
     editor?: {
       setCursor: (line: number, ch: number) => void
       scrollIntoView: (range: { from: { line: number; ch: number }; to: { line: number; ch: number } }, center?: boolean) => void
@@ -194,6 +195,12 @@ export async function jumpToGrammarItem(
   if (!position) {
     throw new Error(`跳转失败: item=${item.id} sourceDocPath=${sourceDocPath} reason=heading_not_found`)
   }
+
+  if (view.getMode?.() === "preview") {
+    await app.workspace.openLinkText(`#${item.headingText}`, sourceDocPath, false)
+    return
+  }
+
   if (view.editor) {
     view.editor.setCursor(position.line - 1, position.column)
     const scrollElement = getEditorScrollElement(leaf.view)
