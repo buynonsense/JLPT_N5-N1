@@ -9,10 +9,10 @@ describe("parseJLPTMarkdown", () => {
 
 # JLPT N5 文法整理
 
-## 001. 〜は〜です ★★★
+## 009. 〜は〜ですか ★★★
 - 用法：\`名詞1は + 名詞2です\`
 
-## 002. 〜は〜では ありません ★★★
+## 010. 〜は〜でしたか ★★★
 - 分类：N5疑問
 `
 
@@ -20,18 +20,18 @@ describe("parseJLPTMarkdown", () => {
 
     expect(items).toHaveLength(2)
     expect(items[0]).toMatchObject({
-      id: "N5-001",
+      id: "N5-009",
       level: "N5",
-      order: 1,
+      order: 9,
       globalIndex: 1,
-      title: "〜は〜です",
+      title: "〜は〜ですか",
       stars: "★★★",
-      headingText: "001. 〜は〜です ★★★",
+      headingText: "009. 〜は〜ですか ★★★",
       sectionHeading: "JLPT N5 文法整理",
       tag: null,
     })
     expect(items[1]).toMatchObject({
-      id: "N5-002",
+      id: "N5-010",
       tag: "N5疑問",
     })
   })
@@ -51,9 +51,9 @@ describe("parseJLPTMarkdown", () => {
   it("throws for duplicate ids", () => {
     const markdown = `# JLPT N5 文法整理
 
-## 001. 〜は〜です ★★★
+## 009. 〜は〜ですか ★★★
 
-## 001. 〜は〜だ ★★★
+## 009. 〜は〜でしたか ★★★
 `
     expect(() => parseJLPTMarkdown(markdown)).toThrow(/duplicate id/i)
   })

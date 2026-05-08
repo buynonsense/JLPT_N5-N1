@@ -29,13 +29,13 @@ function makeItem(
 describe("study view logic", () => {
   it("groups items by teaching category in configured order", () => {
     const groups = groupItemsByCategory([
-      makeItem("N4-001", "条件假设", 2001),
-      makeItem("N5-001", "原因理由", 1001),
-      makeItem("N5-002", "条件假设", 1002),
+      makeItem("N4-001", "条件", 2401),
+      makeItem("N5-001", "原因", 1201),
+      makeItem("N5-002", "条件", 2402),
     ])
 
-    expect(groups.map((group) => group.category)).toEqual(["原因理由", "条件假设"])
-    expect(groups[1].items.map((item) => item.id)).toEqual(["N5-002", "N4-001"])
+    expect(groups.map((group) => group.category)).toEqual(["原因", "条件"])
+    expect(groups[1].items.map((item) => item.id)).toEqual(["N4-001", "N5-002"])
   })
 
   it("defaults view mode to category", () => {
